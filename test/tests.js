@@ -1,67 +1,117 @@
-QUnit.test("hello test", function (assert) {
-    assert.ok(1 == "1", "Passed!");
+QUnit.test("Async.Value Init", function (assert) {
+    var x = new Async.Value();
+    assert.strictEqual(x.hasValue, false);
+    assert.strictEqual(x.value, undefined);
+    assert.deepEqual(x.callbacks, []);
 });
+
+QUnit.test("Async.Value synchronous", function (assert) {
+    var x = new Async.Value();
+
+    var n = 0;
+    x.setValue(57);
+    assert.strictEqual(x.hasValue, true);
+    assert.strictEqual(x.value, 57);
+    assert.strictEqual(n, 0);
+
+    x.then(function (value) {
+        n++;
+        assert.strictEqual(value, 57);
+    });
+
+    x.then(function (value) {
+        n++;
+    });
+
+    assert.strictEqual(n, 2);
+});
+
+QUnit.test("Async.Value synchronous", function (assert) {
+    var x = new Async.Value();
+
+    var n = 0;
+    x.then(function (value) {
+        n++;
+        assert.strictEqual(value, 57);
+    });
+
+    x.then(function (value) {
+        n++;
+    });
+
+
+    assert.strictEqual(x.hasValue, false);
+    assert.strictEqual(x.value, undefined);
+    assert.strictEqual(n, 0);
+
+    x.setValue(57);
+
+    assert.strictEqual(x.hasValue, true);
+    assert.strictEqual(x.value, 57);
+    assert.strictEqual(n, 2);
+});
+
 
 /*
 function addAsync(a, b, time) {
-    console.log("addAsync(" + a + ", " + b + ", " + time + ")");
-    var ret = new Async.Value();
-    Async.call(run, this, arguments);
-    return ret;
+console.log("addAsync(" + a + ", " + b + ", " + time + ")");
+var ret = new Async.Value();
+Async.call(run, this, arguments);
+return ret;
 
-    function run(a, b, time) {
-        setTimeout(function () {
-            var c = a + b;
-            ret.setValue(c);
-            console.log("addAsync(" + a + ", " + b + ") returned " + c);
-        }, time);
-    }
+function run(a, b, time) {
+setTimeout(function () {
+var c = a + b;
+ret.setValue(c);
+console.log("addAsync(" + a + ", " + b + ") returned " + c);
+}, time);
+}
 }
 
 function fact(n) {
-    console.log("fact(" + n + ")");
-    var ret = new Async.Value();
-    Async.call(run, this, arguments);
-    return ret;
+console.log("fact(" + n + ")");
+var ret = new Async.Value();
+Async.call(run, this, arguments);
+return ret;
 
-    function run(n) {
-        setTimeout(function () {
-            if (n <= 1) {
-                console.log("fact(" + n + ") =  1");
-                ret.setValue(1);
-            }
-            else {
-                fact(n - 1).then(function (value) {
-                    setTimeout(function () {
-                        var product = n * value;
-                        console.log("fact(" + n + ") =  " + product);
-                        ret.setValue(product);
-                    }, 500);
-                });
-            }
-        }, 500);
-    }
+function run(n) {
+setTimeout(function () {
+if (n <= 1) {
+console.log("fact(" + n + ") =  1");
+ret.setValue(1);
+}
+else {
+fact(n - 1).then(function (value) {
+setTimeout(function () {
+var product = n * value;
+console.log("fact(" + n + ") =  " + product);
+ret.setValue(product);
+}, 500);
+});
+}
+}, 500);
+}
 }
 
 function fact2(n) {
-    console.log("fact2(" + n + ")");
-    var ret = new Async.Value();
-    Async.call(run, this, arguments);
-    return ret;
+console.log("fact2(" + n + ")");
+var ret = new Async.Value();
+Async.call(run, this, arguments);
+return ret;
 
-    function run(n) {
-        if (n <= 1) {
-            console.log("fact2(" + n + ") =  1");
-            ret.setValue(1);
-        }
-        else {
-            fact2(n - 1).then(function (value) {
-                var product = n * value;
-                console.log("fact2(" + n + ") =  " + product);
-                ret.setValue(product);
-            });
-        }
-    }
+function run(n) {
+if (n <= 1) {
+console.log("fact2(" + n + ") =  1");
+ret.setValue(1);
+}
+else {
+fact2(n - 1).then(function (value) {
+var product = n * value;
+console.log("fact2(" + n + ") =  " + product);
+ret.setValue(product);
+});
+}
+}
 }
 
 console.log("Start");
@@ -74,25 +124,25 @@ var y = fact2(20);
 console.log("End");
 
 c.then(function (value) {
-    console.log("c = " + value);
+console.log("c = " + value);
 });
 d.then(function (value) {
-    console.log("d = " + value);
+console.log("d = " + value);
 });
 e.then(function (value) {
-    console.log("e = " + value);
+console.log("e = " + value);
 });
 f.then(function (value) {
-    console.log("f = " + value);
+console.log("f = " + value);
 });
 x.then(function (value) {
-    console.log("x = " + value);
+console.log("x = " + value);
 });
 y.then(function (value) {
-    console.log("y = " + value);
+console.log("y = " + value);
 
-    y.then(function (value) {
-        console.log("y = " + value);
-    });
+y.then(function (value) {
+console.log("y = " + value);
+});
 });
 */

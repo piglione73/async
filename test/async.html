@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Prova async</title>
+	</head>
+	<body>
+		<script>
+		
+var Async = (function() {
+
+	function AsyncValue() {
+		this.hasValue = false;
+		this.callbacks = [];
+	}
+
+	AsyncValue.prototype.then = function(callback) {
+		if(this.hasValue)
+			callback(this.value);
+		else
+			this.callbacks.push(callback);
+	};
+
+	AsyncValue.prototype.setValue = function(value) {
+		this.value = value;
+		this.hasValue = true;
+		
+		for(var i in this.callbacks){
+			var callback = this.callbacks[i];
+			callback(value);
+		}
+		
+		this.callbacks = [];
+	};
+
+	AsyncValue.prototype.toString = function() {
+		if(this.hasValue) {
+			if(this.value === null)
+				return "(null)";
+			else if(this.value === undefined) 
+				return "(undefined)";
+			else
+				return this.value.toString();
+		}
+		else
+			return "(AsyncValue)";
+	};
+	
+	function waitForValues(values) {
+		var ret = new AsyncValue();
+		wait();
+		return ret;
+		
+		function wait() {
+			//Count
+			var asyncValuesCount = 0;
+			var syncValues = [];
+			for(var i in values) {
+				var value = values[i];
+				syncValues.push(value);
+				if(value instanceof AsyncValue)
+					asyncValuesCount++;
+			}
+
+			if(asyncValuesCount == 0) {
+				//No async values, all is ready
+				ret.setValue(syncValues);
+			}
+			else {
+				//Wait for all AsyncValues to become plain values
+				for(var i in values) {
+					var value = values[i];
+					if(value instanceof AsyncValue)
+						value.then(onValueReady(i));
+				}
+			}
+			
+			function onValueReady(i) {
+				return function(value) {
+					syncValues[i] = value;
+					asyncValuesCount--;
+					
+					if(asyncValuesCount == 0) {
+						//All async values are now ready
+						ret.setValue(syncValues);
+					}
+				};
+			}
+		}
+	};
+
+	function callFunction(func, thisObject, args) {
+		waitForValues(args).then(function(args) { 
+			func.apply(thisObject, args); 
+		});
+	};
+
+
+	return {
+		Value: AsyncValue,
+		wait: waitForValues,
+		call: callFunction
+	};
+	
+})();
+
+
+function addAsync(a, b, time) {
+	console.log("addAsync(" + a + ", " + b + ", " + time + ")");
+	var ret = new Async.Value();
+	Async.call(run, this, arguments);
+	return ret;
+	
+	function run(a, b, time) {
+		setTimeout(function() {
+			var c = a + b;
+			ret.setValue(c);
+			console.log("addAsync(" + a + ", " + b + ") returned " + c);
+		}, time);
+	}
+}
+
+function fact(n) {
+	console.log("fact(" + n + ")");
+	var ret = new Async.Value();
+	Async.call(run, this, arguments);
+	return ret;
+	
+	function run(n) {
+		setTimeout(function() {
+			if(n <= 1) {
+				console.log("fact(" + n + ") =  1");
+				ret.setValue(1);
+			}
+			else {
+				fact(n-1).then(function(value) {
+					setTimeout(function() {
+						var product = n * value;
+						console.log("fact(" + n + ") =  " + product);
+						ret.setValue(product);
+					}, 500);
+				});
+			}
+		}, 500);
+	}
+}
+
+function fact2(n) {
+	console.log("fact2(" + n + ")");
+	var ret = new Async.Value();
+	Async.call(run, this, arguments);
+	return ret;
+	
+	function run(n) {
+		if(n <= 1) {
+			console.log("fact2(" + n + ") =  1");
+			ret.setValue(1);
+		}
+		else {
+			fact2(n-1).then(function(value) {
+				var product = n * value;
+				console.log("fact2(" + n + ") =  " + product);
+				ret.setValue(product);
+			});
+		}
+	}
+}
+
+console.log("Start");
+var c = addAsync(1, 3, 5000);
+var d = addAsync(10, 30, 1000);
+var e = addAsync(d, c, 3000);
+var f = addAsync(c, 1, 100);
+var x = fact(20);
+var y = fact2(20);
+console.log("End");
+
+c.then(function(value) {
+	console.log("c = " + value);
+});
+d.then(function(value) {
+	console.log("d = " + value);
+});
+e.then(function(value) {
+	console.log("e = " + value);
+});
+f.then(function(value) {
+	console.log("f = " + value);
+});
+x.then(function(value) {
+	console.log("x = " + value);
+});
+y.then(function(value) {
+	console.log("y = " + value);
+	
+	y.then(function(value) {
+		console.log("y = " + value);
+	});
+});
+
+		</script>
+	</body>
+</html>

@@ -2,7 +2,7 @@ QUnit.test("Async.Value Init", function (assert) {
     var x = new Async.Value();
     assert.strictEqual(x.hasValue, false);
     assert.strictEqual(x.value, undefined);
-    assert.deepEqual(x.callbacks, []);
+    assert.strictEqual(x.callbacks.length, 0);
 });
 
 QUnit.test("Async.Value synchronous", function (assert) {
@@ -13,6 +13,7 @@ QUnit.test("Async.Value synchronous", function (assert) {
     assert.strictEqual(x.hasValue, true);
     assert.strictEqual(x.value, 57);
     assert.strictEqual(n, 0);
+    assert.strictEqual(x.callbacks.length, 0);
 
     x.then(function (value) {
         n++;
@@ -24,6 +25,7 @@ QUnit.test("Async.Value synchronous", function (assert) {
     });
 
     assert.strictEqual(n, 2);
+    assert.strictEqual(x.callbacks.length, 0);
 });
 
 QUnit.test("Async.Value synchronous", function (assert) {
@@ -40,109 +42,47 @@ QUnit.test("Async.Value synchronous", function (assert) {
     });
 
 
+    assert.strictEqual(x.callbacks.length, 2);
     assert.strictEqual(x.hasValue, false);
     assert.strictEqual(x.value, undefined);
     assert.strictEqual(n, 0);
 
     x.setValue(57);
 
+    assert.strictEqual(x.callbacks.length, 0);
     assert.strictEqual(x.hasValue, true);
     assert.strictEqual(x.value, 57);
     assert.strictEqual(n, 2);
 });
 
+QUnit.asyncTest("addAsync", function (assert) {
+    var c = addAsync(1, 3, 5000);
+    var d = addAsync(10, 30, 1000);
+    var e = addAsync(d, c, 3000);
+    var f = addAsync(c, 1, 100);
 
-/*
-function addAsync(a, b, time) {
-console.log("addAsync(" + a + ", " + b + ", " + time + ")");
-var ret = new Async.Value();
-Async.call(run, this, arguments);
-return ret;
+    Async.call(test, null, [c, d, e, f]);
 
-function run(a, b, time) {
-setTimeout(function () {
-var c = a + b;
-ret.setValue(c);
-console.log("addAsync(" + a + ", " + b + ") returned " + c);
-}, time);
-}
-}
+    function test(c, d, e, f) {
+        assert.equal(c, 4);
+        assert.equal(d, 40);
+        assert.equal(e, 44);
+        assert.equal(f, 5);
+        QUnit.start();
+    }
 
-function fact(n) {
-console.log("fact(" + n + ")");
-var ret = new Async.Value();
-Async.call(run, this, arguments);
-return ret;
+    function addAsync(a, b, time) {
+        console.log("addAsync(" + a + ", " + b + ", " + time + ")");
+        var ret = new Async.Value();
+        Async.call(run, this, arguments);
+        return ret;
 
-function run(n) {
-setTimeout(function () {
-if (n <= 1) {
-console.log("fact(" + n + ") =  1");
-ret.setValue(1);
-}
-else {
-fact(n - 1).then(function (value) {
-setTimeout(function () {
-var product = n * value;
-console.log("fact(" + n + ") =  " + product);
-ret.setValue(product);
-}, 500);
+        function run(a, b, time) {
+            setTimeout(function () {
+                var c = a + b;
+                ret.setValue(c);
+                console.log("addAsync(" + a + ", " + b + ") returned " + c);
+            }, time);
+        }
+    }
 });
-}
-}, 500);
-}
-}
-
-function fact2(n) {
-console.log("fact2(" + n + ")");
-var ret = new Async.Value();
-Async.call(run, this, arguments);
-return ret;
-
-function run(n) {
-if (n <= 1) {
-console.log("fact2(" + n + ") =  1");
-ret.setValue(1);
-}
-else {
-fact2(n - 1).then(function (value) {
-var product = n * value;
-console.log("fact2(" + n + ") =  " + product);
-ret.setValue(product);
-});
-}
-}
-}
-
-console.log("Start");
-var c = addAsync(1, 3, 5000);
-var d = addAsync(10, 30, 1000);
-var e = addAsync(d, c, 3000);
-var f = addAsync(c, 1, 100);
-var x = fact(20);
-var y = fact2(20);
-console.log("End");
-
-c.then(function (value) {
-console.log("c = " + value);
-});
-d.then(function (value) {
-console.log("d = " + value);
-});
-e.then(function (value) {
-console.log("e = " + value);
-});
-f.then(function (value) {
-console.log("f = " + value);
-});
-x.then(function (value) {
-console.log("x = " + value);
-});
-y.then(function (value) {
-console.log("y = " + value);
-
-y.then(function (value) {
-console.log("y = " + value);
-});
-});
-*/

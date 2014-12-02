@@ -1,0 +1,21 @@
+{
+  "name": "async",
+  "version": "0.1.0",
+  "description": "Library that allows writing and consuming javascript asynchronous functions as if they were synchronous.",
+  "main": "async.js",
+  "keywords": [
+    "async"
+  ],
+  "authors": [
+    "Roberto Rossi"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/piglione73/async",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

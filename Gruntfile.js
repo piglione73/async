@@ -5,12 +5,24 @@ module.exports = function (grunt) {
 
         clean: ['build'],
 
+        concat: {
+            options: {
+                separator: ';\n\n\n'
+            },
+            build: {
+                src: [
+                    'src/async.js'
+                ],
+                dest: 'build/<%= pkg.name %>.js'
+            }
+        },
+
         uglify: {
             options: {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             build: {
-                src: 'src/<%= pkg.name %>.js',
+                src: 'build/<%= pkg.name %>.js',
                 dest: 'build/<%= pkg.name %>.min.js'
             }
         },
@@ -23,8 +35,9 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-qunit');
 
-    grunt.registerTask('default', ['clean', 'uglify', 'qunit']);
+    grunt.registerTask('default', ['clean', 'concat', 'uglify', 'qunit']);
 
 };

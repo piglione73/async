@@ -2,7 +2,7 @@
   "name": "async",
   "version": "0.1.2",
   "description": "Library that allows writing and consuming javascript asynchronous functions as if they were synchronous.",
-  "main": "async.js",
+  "main": "build/async.js",
   "keywords": [
     "async"
   ],

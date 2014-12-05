@@ -61,7 +61,7 @@ QUnit.asyncTest("addAsync", function (assert) {
     var e = addAsync(d, c, 3000);
     var f = addAsync(c, 1, 100);
 
-    Async.call(test, null, [c, d, e, f]);
+    Async.call(test, [c, d, e, f]);
 
     function test(c, d, e, f) {
         assert.equal(c, 4);
@@ -73,11 +73,10 @@ QUnit.asyncTest("addAsync", function (assert) {
 
     function addAsync(a, b, time) {
         console.log("addAsync(" + a + ", " + b + ", " + time + ")");
-        var ret = new Async.Value();
-        Async.call(run, this, arguments);
-        return ret;
+        return Async.call(run, arguments);
 
         function run(a, b, time) {
+            var ret = this;
             setTimeout(function () {
                 var c = a + b;
                 ret.setValue(c);

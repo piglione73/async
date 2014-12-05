@@ -81,10 +81,13 @@ var Async = (function () {
         }
     };
 
-    function callFunction(func, thisObject, args) {
+    function callFunction(func, args) {
+        var ret = new AsyncValue();
         waitForValues(args).then(function (args) {
-            func.apply(thisObject, args);
+            func.apply(ret, args);
         });
+
+        return ret;
     };
 
 
